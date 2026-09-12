@@ -10,12 +10,20 @@
     <el-drawer
       :visible.sync="visible"
       direction="rtl"
-      size="420px"
+      :size="drawerWidth"
       :with-header="false"
       :wrapperClosable="true"
       custom-class="ai-drawer"
     >
       <div class="ai-chat">
+        <!-- 左缘拖拽条：拖动向左拉大 / 双击恢复默认 -->
+        <div
+          class="ai-resize-handle"
+          :class="{ 'ai-resize-active': dragging }"
+          title="拖动调整宽度，双击恢复默认"
+          @mousedown.prevent="startDrag"
+          @dblclick="resetWidth"
+        ></div>
         <!-- 头部 -->
         <div class="ai-header">
           <div class="ai-header-info">
@@ -108,6 +116,10 @@ export default {
       visible: false,
       loading: false,
       input: "",
+      drawerWidth: 420,
+      dragging: false,
+      dragStartX: 0,
+      dragStartWidth: 0,
       user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
       messages: [],
       quickQuestions: [
@@ -124,9 +136,50 @@ export default {
     }
   },
   created() {
+    // 恢复上次的抽屉宽度（360 ~ 窗口85% 之间才有效）
+    try {
+      const saved = parseInt(localStorage.getItem("ai_drawer_width"))
+      const max = Math.floor(window.innerWidth * 0.85)
+      if (!isNaN(saved) && saved >= 360 && saved <= max) {
+        this.drawerWidth = saved
+      }
+    } catch (e) { /* 忽略 */ }
     this.loadHistory()
   },
+  beforeDestroy() {
+    // 组件销毁时清理全局事件，防止泄漏
+    document.removeEventListener('mousemove', this.handleMove)
+    document.removeEventListener('mouseup', this.stopDrag)
+  },
   methods: {
+    // ===== 抽屉宽度拖拽 =====
+    startDrag(e) {
+      this.dragging = true
+      this.dragStartX = e.clientX
+      this.dragStartWidth = this.drawerWidth
+      document.body.style.userSelect = 'none'
+      document.addEventListener('mousemove', this.handleMove)
+      document.addEventListener('mouseup', this.stopDrag)
+    },
+    handleMove(e) {
+      if (!this.dragging) return
+      // 抽屉靠右，向左拖 = 宽度增大；限制在 360px ~ 窗口85%
+      const delta = this.dragStartX - e.clientX
+      const max = Math.floor(window.innerWidth * 0.85)
+      this.drawerWidth = Math.min(max, Math.max(360, this.dragStartWidth + delta))
+    },
+    stopDrag() {
+      if (!this.dragging) return
+      this.dragging = false
+      document.body.style.userSelect = ''
+      document.removeEventListener('mousemove', this.handleMove)
+      document.removeEventListener('mouseup', this.stopDrag)
+      try { localStorage.setItem('ai_drawer_width', String(this.drawerWidth)) } catch (e) { /* 忽略 */ }
+    },
+    resetWidth() {
+      this.drawerWidth = 420
+      try { localStorage.setItem('ai_drawer_width', '420') } catch (e) { /* 忽略 */ }
+    },
     openDrawer() {
       this.user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {}
       this.visible = true
@@ -274,10 +327,28 @@ export default {
 /* 抽屉整体 */
 .ai-drawer { border-radius: 16px 0 0 16px; }
 .ai-chat {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
   background: var(--pet-bg, #FFFAF6);
+}
+
+/* 左缘拖拽条 */
+.ai-resize-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 20;
+  background: transparent;
+  transition: background .2s;
+}
+.ai-resize-handle:hover,
+.ai-resize-handle.ai-resize-active {
+  background: rgba(255, 154, 86, .45);
 }
 
 /* 头部 */
