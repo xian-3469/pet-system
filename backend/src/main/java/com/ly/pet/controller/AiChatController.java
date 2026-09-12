@@ -39,6 +39,9 @@ public class AiChatController {
     private AdoptAnalysisService adoptAnalysisService;
 
     @Resource
+    private com.ly.pet.service.HealthDashboardAiService healthDashboardAiService;
+
+    @Resource
     private IPetProfileService petProfileService;
 
     @Resource
@@ -92,6 +95,16 @@ public class AiChatController {
             throw new ServiceException(Constants.CODE_401, "无权查看该申请的分析");
         }
         return Result.success(adoptAnalysisService.analyze(applicationId));
+    }
+
+    /**
+     * 健康看板 AI 解读（聚合体重/记录覆盖/到期事项，LLM 生成评估+预警+建议，失败降级规则摘要）
+     */
+    @ApiOperation("健康看板 AI 解读")
+    @GetMapping("/health-dashboard/{petId}")
+    public Result healthDashboard(@PathVariable Integer petId) {
+        User user = assertLogin();
+        return Result.success(healthDashboardAiService.generate(petId, user));
     }
 
     /**
@@ -160,15 +173,8 @@ public class AiChatController {
                 + "{\"petType\":\"cat/dog/other\",\"breed\":\"品种中文名\",\"color\":\"毛色描述\",\"description\":\"50字以内的宠物建档简介\",\"tags\":\"3-5个形容词标签,逗号分隔\"}";
 
         String content = glmClientService.recognizeImage(dataUri, prompt);
-        // 解析 JSON（容错：剥掉可能的 ```json 包裹）
-        String json = content.trim().replaceAll("^```(json)?", "").replaceAll("```$", "").trim();
-        int start = json.indexOf('{');
-        int end = json.lastIndexOf('}');
-        if (start < 0 || end <= start) {
-            throw new ServiceException(Constants.CODE_500, "识别结果解析失败，请手动填写");
-        }
         try {
-            com.fasterxml.jackson.databind.JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(json.substring(start, end + 1));
+            com.fasterxml.jackson.databind.JsonNode node = com.ly.pet.service.GlmClient.extractJsonObject(new com.fasterxml.jackson.databind.ObjectMapper(), content);
             Map<String, Object> result = new java.util.LinkedHashMap<>();
             // petType 规范化为 cat/dog/other（视觉模型可能返回中文）
             String petType = node.path("petType").asText("").toLowerCase();

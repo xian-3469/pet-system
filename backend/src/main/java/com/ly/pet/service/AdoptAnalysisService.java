@@ -126,17 +126,7 @@ public class AdoptAnalysisService {
         if (content == null || content.trim().isEmpty()) {
             throw new IllegalStateException("LLM 返回为空");
         }
-
-        String json = content.trim();
-        if (json.startsWith("```")) {
-            json = json.replaceAll("^```(json)?", "").replaceAll("```$", "").trim();
-        }
-        int start = json.indexOf('{');
-        int end = json.lastIndexOf('}');
-        if (start < 0 || end <= start) {
-            throw new IllegalStateException("LLM 返回内容不是 JSON 对象");
-        }
-        JsonNode node = objectMapper.readTree(json.substring(start, end + 1));
+        JsonNode node = GlmClient.extractJsonObject(objectMapper, content);
 
         Map<String, Object> analysis = new LinkedHashMap<>();
         analysis.put("highlights", toStringList(node.path("highlights")));

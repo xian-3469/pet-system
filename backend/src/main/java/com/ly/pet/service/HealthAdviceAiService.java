@@ -114,7 +114,7 @@ public class HealthAdviceAiService {
     /**
      * 调用大模型生成建议，要求返回 JSON 数组
      */
-    private List<HealthAdvice> generateByLlm(PetProfile pet, List<HealthRecord> records) {
+    private List<HealthAdvice> generateByLlm(PetProfile pet, List<HealthRecord> records) throws Exception {
         StringBuilder prompt = new StringBuilder();
         prompt.append("请为以下宠物生成个性化健康建议。\n\n")
               .append("【宠物信息】\n")
@@ -156,24 +156,8 @@ public class HealthAdviceAiService {
     /**
      * 解析 LLM 返回的建议 JSON，做严格校验与清洗
      */
-    private List<HealthAdvice> parseAdviceList(String content) {
-        String json = content.trim();
-        // 剥掉可能包裹的 ```json ... ```
-        if (json.startsWith("```")) {
-            json = json.replaceAll("^```(json)?", "").replaceAll("```$", "").trim();
-        }
-        int start = json.indexOf('[');
-        int end = json.lastIndexOf(']');
-        if (start < 0 || end <= start) {
-            throw new IllegalStateException("LLM 返回内容不是 JSON 数组");
-        }
-        json = json.substring(start, end + 1);
-        JsonNode arrayNode;
-        try {
-            arrayNode = objectMapper.readTree(json);
-        } catch (Exception e) {
-            throw new IllegalStateException("LLM 返回 JSON 解析失败");
-        }
+    private List<HealthAdvice> parseAdviceList(String content) throws Exception {
+        JsonNode arrayNode = GlmClient.extractJsonArray(objectMapper, content);
         if (!arrayNode.isArray() || arrayNode.size() == 0) {
             throw new IllegalStateException("LLM 返回了空建议列表");
         }

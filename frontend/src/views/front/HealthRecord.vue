@@ -139,6 +139,34 @@
             <el-option v-for="pet in myPets" :key="pet.id" :label="pet.petName" :value="pet.id"></el-option>
           </el-select>
           <el-tag type="info">最后更新：{{ lastUpdateTime }}</el-tag>
+          <el-button size="small" type="primary" plain icon="el-icon-magic-stick" :loading="aiCardLoading" @click="loadAiCard">
+            {{ aiCardLoading ? 'AI 解读中…' : 'AI 健康解读' }}
+          </el-button>
+          <el-button size="small" type="success" plain icon="el-icon-chat-dot-round" @click="askAi">问 AI</el-button>
+        </div>
+
+        <!-- AI 健康解读卡片 -->
+        <div v-if="aiCard" style="margin-bottom: 20px; background: linear-gradient(135deg, #FFF7F0 0%, #FFFDF9 100%); border: 1px solid #FFD9C2; border-radius: 10px; padding: 16px 20px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 16px; font-weight: bold; color: #b06a2c;">🐾 AI 健康解读</span>
+            <el-tag size="mini" :type="aiCard.source === 'AI' ? 'success' : 'info'">{{ aiCard.source === 'AI' ? 'AI 生成' : '规则摘要' }}</el-tag>
+            <el-tag v-if="aiCard.weightAlert" size="mini" type="danger">
+              体重{{ aiCard.weightAlert.direction }} {{ aiCard.weightAlert.changePct }}%
+            </el-tag>
+          </div>
+          <p style="margin: 0 0 10px; line-height: 1.7; color: #555;">{{ aiCard.overall }}</p>
+          <div v-if="aiCard.warnings && aiCard.warnings.length" style="margin-bottom: 8px;">
+            <div style="font-weight: bold; color: #E6A23C; margin-bottom: 4px;">⚠️ 需要关注</div>
+            <ul style="margin: 0; padding-left: 20px; color: #666; line-height: 1.8;">
+              <li v-for="(w, i) in aiCard.warnings" :key="'w'+i">{{ w }}</li>
+            </ul>
+          </div>
+          <div v-if="aiCard.tips && aiCard.tips.length">
+            <div style="font-weight: bold; color: #409EFF; margin-bottom: 4px;">💡 实用建议</div>
+            <ul style="margin: 0; padding-left: 20px; color: #666; line-height: 1.8;">
+              <li v-for="(t, i) in aiCard.tips" :key="'t'+i">{{ t }}</li>
+            </ul>
+          </div>
         </div>
 
         <!-- 四个模块：2x2 网格 -->
@@ -253,6 +281,8 @@ export default {
       form: {},
       dashSummary: { totalRecords: 0, vaccineCount: 0, dewormCount: 0, overdueCount: 0, dueSoonCount: 0 },
       lastUpdateTime: '-',
+      aiCard: null,
+      aiCardLoading: false,
 
       // 疫苗模块变量
       vaccineHasData: false,
@@ -404,8 +434,33 @@ export default {
       this.dashboardVisible = true
       this.loadDashboardData()
     },
+    loadAiCard() {
+      if (!this.dashboardPetId || this.aiCardLoading) return
+      this.aiCardLoading = true
+      this.request.get("/ai/health-dashboard/" + this.dashboardPetId, { timeout: 120000 }).then(res => {
+        this.aiCardLoading = false
+        if (res.code === '200') {
+          this.aiCard = res.data
+          if (res.data.source !== 'AI') {
+            this.$message.warning("AI 服务暂不可用，已展示规则摘要")
+          }
+        } else {
+          this.$message.error(res.msg || "AI 解读失败")
+        }
+      }).catch(() => {
+        this.aiCardLoading = false
+        this.$message.error("AI 服务连接失败")
+      })
+    },
+    askAi() {
+      const pet = this.myPets.find(p => p.id === this.dashboardPetId)
+      const name = pet ? pet.petName : '我的宠物'
+      const text = "请帮我分析宠物「" + name + "」的健康情况：体重趋势、疫苗/驱虫/体检的记录覆盖、待办提醒，并给出养护建议"
+      window.dispatchEvent(new CustomEvent("ai-assistant-ask", { detail: { text: text } }))
+    },
     loadDashboardData() {
       if (!this.dashboardPetId) return
+      this.aiCard = null
       this.vaccineHasData = false
       this.vaccineProgress = 80
       this.vaccineTotal = 5

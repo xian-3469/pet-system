@@ -145,13 +145,28 @@ export default {
       }
     } catch (e) { /* 忽略 */ }
     this.loadHistory()
+    // 监听页面级"问 AI"事件（如健康看板的上下文提问）
+    window.addEventListener('ai-assistant-ask', this.handleExternalAsk)
   },
   beforeDestroy() {
     // 组件销毁时清理全局事件，防止泄漏
     document.removeEventListener('mousemove', this.handleMove)
     document.removeEventListener('mouseup', this.stopDrag)
+    window.removeEventListener('ai-assistant-ask', this.handleExternalAsk)
   },
   methods: {
+    // ===== 页面级"问 AI"事件（携带上下文问题自动发送）=====
+    handleExternalAsk(e) {
+      const text = e.detail && e.detail.text
+      if (!text) return
+      this.user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {}
+      if (!this.user.id) {
+        this.$message.warning("请先登录后再使用 AI 助手")
+        return
+      }
+      this.visible = true
+      this.$nextTick(() => this.send(text))
+    },
     // ===== 抽屉宽度拖拽 =====
     startDrag(e) {
       this.dragging = true

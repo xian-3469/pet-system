@@ -139,6 +139,8 @@ pet-system
 | ![智能推荐](docs/images/ai-recommend.png) | ![领养分析](docs/images/adopt-ai-analysis.png) |
 | **视觉识别建档**（GLM-4V 识别品种自动填充） | **聊天窗自由拖拽调宽** |
 | ![视觉识别](docs/images/vision-recognize.png) | ![拖拽调宽](docs/images/drawer-resize.png) |
+| **健康看板 AI 解读**（评估 + 预警 + 建议，支持"问 AI"上下文追问） | |
+| ![健康看板解读](docs/images/dashboard-ai-card.png) | |
 
 ### 管理后台
 

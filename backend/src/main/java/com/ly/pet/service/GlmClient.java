@@ -162,4 +162,51 @@ public class GlmClient {
             throw new ServiceException(Constants.CODE_500, "视觉模型响应解析失败");
         }
     }
+
+    /**
+     * 从模型返回文本中宽容提取 JSON 对象
+     * 处理 ```json 包裹、首尾杂讯，以及模型偶发把中文引号用作 JSON 定界符的问题
+     */
+    public static JsonNode extractJsonObject(com.fasterxml.jackson.databind.ObjectMapper om, String raw) throws Exception {
+        String body = trimToJson(raw, '{', '}');
+        try {
+            return om.readTree(body);
+        } catch (Exception first) {
+            try {
+                return om.readTree(fixCjkQuotes(body));
+            } catch (Exception second) {
+                throw first;
+            }
+        }
+    }
+
+    /**
+     * 从模型返回文本中宽容提取 JSON 数组
+     */
+    public static JsonNode extractJsonArray(com.fasterxml.jackson.databind.ObjectMapper om, String raw) throws Exception {
+        String body = trimToJson(raw, '[', ']');
+        try {
+            return om.readTree(body);
+        } catch (Exception first) {
+            try {
+                return om.readTree(fixCjkQuotes(body));
+            } catch (Exception second) {
+                throw first;
+            }
+        }
+    }
+
+    private static String trimToJson(String raw, char open, char close) {
+        String json = raw == null ? "" : raw.trim().replaceAll("^```(json)?", "").replaceAll("```$", "").trim();
+        int start = json.indexOf(open);
+        int end = json.lastIndexOf(close);
+        if (start < 0 || end <= start) {
+            throw new IllegalStateException("LLM 返回内容不是 JSON");
+        }
+        return json.substring(start, end + 1);
+    }
+
+    private static String fixCjkQuotes(String body) {
+        return body.replace('\u201c', '"').replace('\u201d', '"');
+    }
 }
