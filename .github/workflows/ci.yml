@@ -26,13 +26,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: 设置 Node.js 14
+      - name: 设置 Node.js 16
         uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version: '16'
       - name: 安装依赖
         working-directory: frontend
-        run: npm install --registry=https://registry.npmmirror.com
+        run: npm install
       - name: 构建
         working-directory: frontend
         run: npm run build
