@@ -1,0 +1,42 @@
+server:
+  port: 9311
+spring:
+  config:
+    # 本地敏感配置（API Key 等存放于 application-local.yml，该文件被 .gitignore 忽略不上传；
+    # 克隆项目后新建此文件、或在下方 api-key 处直接填入你的 Key 即可）
+    import: optional:file:./application-local.yml
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/pet?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
+    username: root
+    password: 123456
+  servlet:
+    multipart:
+      max-file-size: 2048MB
+      max-request-size: 2048MB
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    timeout: 3000
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# AI 智能助手配置（智谱 GLM，OpenAI 兼容接口）
+ai:
+  zhipu:
+    base-url: https://open.bigmodel.cn/api/paas/v4
+    api-key: 在此填入你的智谱APIKey（本地开发请使用 application-local.yml）
+    model: glm-4-flash
+    vision-model: glm-4v-flash
+    timeout-seconds: 60
+    max-tool-rounds: 5
+
+# 主动健康提醒 Agent 定时配置（默认每天凌晨1点）
+health:
+  reminder:
+    cron: 0 0 1 * * ?
