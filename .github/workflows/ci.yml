@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: 后端编译
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 设置 JDK 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+      - name: Maven 编译
+        run: mvn -q compile -DskipTests -f backend/pom.xml
+
+  frontend:
+    name: 前端构建
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 设置 Node.js 14
+        uses: actions/setup-node@v4
+        with:
+          node-version: '14'
+      - name: 安装依赖
+        working-directory: frontend
+        run: npm install --registry=https://registry.npmmirror.com
+      - name: 构建
+        working-directory: frontend
+        run: npm run build

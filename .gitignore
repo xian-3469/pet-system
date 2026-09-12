@@ -5,15 +5,15 @@
 *.iws
 
 # ===== 构建产物 =====
-源码/PetManagerApi/target/
-源码/PetManagerVue/node_modules/
-源码/PetManagerVue/dist/
+backend/target/
+frontend/node_modules/
+frontend/dist/
 
-# ===== 运行期上传的图片（366MB，体积过大不入库；克隆后需单独获取）=====
-源码/PetManagerApi/files/
+# ===== 运行期上传的图片（体积过大不入库；克隆后需单独获取）=====
+backend/files/
 
 # ===== 本地敏感配置（含 API Key，严禁上传）=====
-源码/PetManagerApi/application-local.yml
+backend/application-local.yml
 
 # ===== 日志与其他 =====
 *.log

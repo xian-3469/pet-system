@@ -1,11 +1,12 @@
 #!/bin/bash
 # 宠物救助管理系统 一键启动脚本
-# 用法: bash 启动服务.sh
-# 依赖：便携版 JDK/Maven/MySQL/Redis 安装在 ~/tools 下（由 AI 助手部署）
+# 用法: bash start.sh
+# 依赖：便携版 JDK/Maven/MySQL/Redis 安装在 ~/tools 下（本机部署方式）；
+#       标准安装环境下请自行调整 JAVA_HOME/MYSQL 路径
 
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-API_DIR="$BASE_DIR/源码/PetManagerApi"
-VUE_DIR="$BASE_DIR/源码/PetManagerVue"
+API_DIR="$BASE_DIR/backend"
+VUE_DIR="$BASE_DIR/frontend"
 export JAVA_HOME="$HOME/tools/jdk8u504-b01"
 export PATH="$JAVA_HOME/bin:$HOME/tools/apache-maven-3.8.8/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/tools/lib:$LD_LIBRARY_PATH"
@@ -43,4 +44,4 @@ echo
 echo "启动完成后访问："
 echo "  本机（虚拟机内）：http://localhost:9312"
 echo "  宿主机/其他电脑：http://$(hostname -I | awk '{print $1}'):9312"
-echo "测试账号：admin/123456（管理员）、xiaoming/123456（用户）"
+echo "测试账号：admin/123456（管理员）、user1/123456（用户）"
