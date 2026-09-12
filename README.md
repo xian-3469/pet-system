@@ -112,13 +112,43 @@ pet-system
 └── start.sh                # Linux 一键启动脚本
 ```
 
-## 📸 演示
+## 📸 系统演示
 
-| AI 助手（工具调用轨迹） | 健康建议 AI 生成 |
+### 用户端功能
+
+| 登录 | 门户首页 |
 |---|---|
-| ![AI 助手](docs/images/ai-chat-tools.png) | ![健康建议](docs/images/health-advice-ai.png) |
-| **领养匹配 AI 分析** | **聊天窗拖拽调宽** |
-| ![领养分析](docs/images/adopt-analysis.png) | ![拖拽调宽](docs/images/drawer-resize.png) |
+| ![登录](docs/images/login.png) | ![门户首页](docs/images/portal-home.png) |
+| **宠物领养（筛选 + 聚类标签）** | **宠物广场（公开档案互动）** |
+| ![宠物领养](docs/images/adopt-list.png) | ![宠物广场](docs/images/pet-public.png) |
+| **健康记录与仪表盘** | **智能建议（AI 生成 + 来源标签）** |
+| ![健康记录](docs/images/health-record.png) | ![智能建议](docs/images/health-advice-ai.png) |
+| **服务预约** | **我的订单** |
+| ![服务预约](docs/images/service-reservation.png) | ![我的订单](docs/images/my-orders.png) |
+| **宠物论坛** | **站内信（AI 主动健康提醒）** |
+| ![宠物论坛](docs/images/forum.png) | ![站内信](docs/images/notice-agent-reminder.png) |
+| **我的领养（申请追踪）** | |
+| ![我的领养](docs/images/my-adopt.png) | |
+
+### 🤖 AI Agent 能力
+
+| 悬浮助手（全站入口，可拖拽调宽） | 多轮工具调用对话（工具轨迹可视化） |
+|---|---|
+| ![悬浮助手](docs/images/portal-home.png) | ![工具调用](docs/images/ai-chat-tools.png) |
+| **算法融合智能推荐**（调平台匹配算法打分：小橘 86 / 豆豆 79 / 旺财 63） | **领养申请 AI 匹配分析**（算法分 + 亮点/风险/建议） |
+| ![智能推荐](docs/images/ai-recommend.png) | ![领养分析](docs/images/adopt-ai-analysis.png) |
+| **视觉识别建档**（GLM-4V 识别品种自动填充） | **聊天窗自由拖拽调宽** |
+| ![视觉识别](docs/images/vision-recognize.png) | ![拖拽调宽](docs/images/drawer-resize.png) |
+
+### 管理后台
+
+| 数据看板 | 流浪动物管理 |
+|---|---|
+| ![数据看板](docs/images/admin-dashboard.png) | ![动物管理](docs/images/admin-animal.png) |
+| **领养申请审核 + AI 匹配分析** | **算法配置（在线调参）** |
+| ![申请审核](docs/images/admin-application-ai.png) | ![算法配置](docs/images/admin-algorithm.png) |
+| **救助站管理** | |
+| ![救助站](docs/images/admin-rescue.png) | |
 
 ## ❓ 常见问题
 
