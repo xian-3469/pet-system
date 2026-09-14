@@ -50,6 +50,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Agent 工具注册中心
@@ -168,7 +169,7 @@ public class AgentToolRegistry {
                 }}, null)));
         tools.add(GlmTool.of("get_upcoming_activities", "查询平台发布的公益救助活动列表（名称、时间、地点、报名人数）。",
                 objectSchema(new HashMap<>(), null)));
-        tools.add(GlmTool.of("submit_adopt_application", "代表当前用户提交领养申请（写操作）。必须两步执行：第一步不传 confirm 调用做资格预检，把返回的申请摘要展示给用户并明确询问是否确认提交；只有当用户在对话中明确回复同意后，才允许以 confirm=true 再次调用正式提交。未经用户确认严禁提交。动物必须处于可领养状态；若用户未说明领养理由，先询问。不知道动物ID时可直接传 animalName 按名字解析。",
+        tools.add(GlmTool.of("submit_adopt_application", "代表当前用户提交领养申请（写操作）。必须两步执行：第一步不传 confirm 调用做资格预检，把返回的申请摘要展示给用户并明确询问是否确认提交；只有当用户在对话中明确回复同意后，才允许以 confirm=true 再次调用正式提交。未经用户确认严禁提交。动物必须处于可领养状态；若用户未说明领养理由，先询问。不知道动物ID时可直接传 animalName 按名字解析。服务端将校验预检草稿，未预检直接确认会被拒绝。",
                 objectSchema(new LinkedHashMap<String, Object>() {{
                     put("animalId", intProp("要领养的动物ID（对话中有明确 ID 时使用）"));
                     put("animalName", strProp("动物名字，如：小橘。不知道ID时用名字，系统自动匹配"));
@@ -180,7 +181,7 @@ public class AgentToolRegistry {
                         put("description", "false/缺省=仅预检并等待用户确认；true=正式提交申请");
                     }});
                 }}, null)));
-        tools.add(GlmTool.of("add_health_record", "为当前用户的宠物新增一条健康记录（写操作）。必须两步执行：第一步不传 confirm 调用做预检，把记录摘要展示给用户并明确询问是否确认录入；用户同意后才以 confirm=true 正式写入。recordType 必须是 疫苗/驱虫/体检/治疗 之一；recordDate 用 yyyy-MM-dd 格式（当前日期已在系统提示中给出，相对时间如“昨天”需自行换算）；不完整的字段先向用户询问。",
+        tools.add(GlmTool.of("add_health_record", "为当前用户的宠物新增一条健康记录（写操作）。必须两步执行：第一步不传 confirm 调用做预检，把记录摘要展示给用户并明确询问是否确认录入；用户同意后才以 confirm=true 正式写入。recordType 必须是 疫苗/驱虫/体检/治疗 之一；recordDate 用 yyyy-MM-dd 格式（当前日期已在系统提示中给出，相对时间如“昨天”需自行换算）；不完整的字段先向用户询问。服务端将校验预检草稿，未预检直接确认会被拒绝。",
                 objectSchema(new LinkedHashMap<String, Object>() {{
                     put("petName", strProp("宠物名字，如：花花。不知道ID时用名字，系统自动匹配"));
                     put("petId", intProp("宠物档案ID（对话中有明确 ID 时使用）"));
@@ -200,7 +201,7 @@ public class AgentToolRegistry {
                         put("description", "false/缺省=仅预检等待确认；true=正式写入");
                     }});
                 }}, null)));
-        tools.add(GlmTool.of("create_service_order", "为当前用户的宠物创建服务预约订单（写操作）。必须两步执行：先不传 confirm 预检生成订单预览（含服务、门店、价格、时间）请用户确认；用户同意后才以 confirm=true 正式下单。appointmentTime 用 yyyy-MM-dd HH:mm 格式（相对时间需按系统提示中的当前时间换算）；同服务同一时段若已被预约会提交失败。不知道服务或宠物 ID 时直接传名字。",
+        tools.add(GlmTool.of("create_service_order", "为当前用户的宠物创建服务预约订单（写操作）。必须两步执行：先不传 confirm 预检生成订单预览（含服务、门店、价格、时间）请用户确认；用户同意后才以 confirm=true 正式下单。appointmentTime 用 yyyy-MM-dd HH:mm 格式（相对时间需按系统提示中的当前时间换算）；同服务同一时段若已被预约会提交失败。不知道服务或宠物 ID 时直接传名字。服务端将校验预检草稿，未预检直接确认会被拒绝。",
                 objectSchema(new LinkedHashMap<String, Object>() {{
                     put("serviceName", strProp("服务项目名称，如：基础洗护套餐。不知道ID时用名字"));
                     put("serviceId", intProp("服务项目ID（对话中有明确 ID 时使用）"));
@@ -223,7 +224,7 @@ public class AgentToolRegistry {
                 objectSchema(new LinkedHashMap<String, Object>() {{
                     put("status", strProp("可选，按状态过滤，如 PENDING"));
                 }}, null)));
-        tools.add(GlmTool.of("cancel_service_order", "取消当前用户自己的服务预约订单（写操作）。必须两步执行：先不传 confirm 预检展示订单信息并询问取消原因与确认；用户同意后才以 confirm=true 正式取消。仅待确认/已确认状态的订单可取消。不知道订单号时先调用 get_my_service_orders 查询。",
+        tools.add(GlmTool.of("cancel_service_order", "取消当前用户自己的服务预约订单（写操作）。必须两步执行：先不传 confirm 预检展示订单信息并询问取消原因与确认；用户同意后才以 confirm=true 正式取消。仅待确认/已确认状态的订单可取消。不知道订单号时先调用 get_my_service_orders 查询。服务端将校验预检草稿，未预检直接确认会被拒绝。",
                 objectSchema(new LinkedHashMap<String, Object>() {{
                     put("orderNo", strProp("订单号（与 orderId 二选一）"));
                     put("orderId", intProp("订单ID（与 orderNo 二选一）"));
@@ -235,7 +236,7 @@ public class AgentToolRegistry {
                 }}, null)));
         tools.add(GlmTool.of("recommend_pets_for_me", "根据用户最新领养申请的画像（经验/住房/收入/家庭结构），用平台领养匹配算法对所有可领养动物打分，返回匹配度最高的前3只。用户问'推荐适合我的宠物'时使用。",
                 objectSchema(new HashMap<>(), null)));
-        tools.add(GlmTool.of("generate_pet_health_advice", "为当前用户的一只宠物生成 AI 个性化健康建议（写操作，会覆盖该宠物现有建议）。必须两步执行：先不传 confirm 说明将要进行的操作并征得用户同意；同意后以 confirm=true 执行。",
+        tools.add(GlmTool.of("generate_pet_health_advice", "为当前用户的一只宠物生成 AI 个性化健康建议（写操作，会覆盖该宠物现有建议）。必须两步执行：先不传 confirm 说明将要进行的操作并征得用户同意；同意后以 confirm=true 执行。服务端将校验预检草稿，未预检直接确认会被拒绝。",
                 objectSchema(new LinkedHashMap<String, Object>() {{
                     put("petName", strProp("宠物名字"));
                     put("petId", intProp("宠物档案ID（二选一）"));
@@ -329,6 +330,15 @@ public class AgentToolRegistry {
      * 支持按 animalId 或 animalName 定位动物，容忍模型跨轮次丢失 ID
      */
     private ToolExecutionResult submitAdoptApplication(JsonNode args, User user) {
+        boolean viaPending = false;
+        if (args.path("confirm").asBoolean(false)) {
+            JsonNode pending = consumePendingDraft(user.getId(), "adopt");
+            if (pending == null) {
+                return new ToolExecutionResult("{\"error\":\"服务端要求两阶段执行：当前没有已预检的草稿。请先不带 confirm 调用完成预检，把摘要展示给用户并取得明确同意后，再以 confirm=true 提交\"}", "未预检直接提交被拒绝");
+            }
+            args = pending;
+            viaPending = true;
+        }
         Integer animalId = optInt(args, "animalId");
         String animalName = textArg(args, "animalName");
         Animal animal;
@@ -375,8 +385,14 @@ public class AgentToolRegistry {
         if (!notEmpty(reason)) {
             return new ToolExecutionResult("{\"error\":\"缺少领养理由，请先向用户询问领养理由\"}", "缺少领养理由");
         }
-        boolean confirm = args.path("confirm").asBoolean(false);
-        if (!confirm) {
+        if (!viaPending) {
+            Map<String, Object> draft = new LinkedHashMap<>();
+            draft.put("animalId", animal.getId());
+            draft.put("reason", reason);
+            draft.put("experience", textArg(args, "experience"));
+            draft.put("housing", textArg(args, "housing"));
+            draft.put("familyStructure", textArg(args, "familyStructure"));
+            storePendingDraft(user.getId(), "adopt", draft);
             Map<String, Object> preview = new LinkedHashMap<>();
             preview.put("needConfirm", true);
             preview.put("animalId", animal.getId());
@@ -384,7 +400,7 @@ public class AgentToolRegistry {
             preview.put("animalInfo", animal.getType() + " / " + animal.getAge() + " / " + animal.getBodyType() + " / 性格" + animal.getPersonality());
             preview.put("applicant", user.getNickname());
             preview.put("reason", reason);
-            preview.put("message", "请把以上申请摘要展示给用户并明确询问是否确认提交；用户同意后才允许 confirm=true 正式提交");
+            preview.put("message", "请把以上申请摘要展示给用户并明确询问是否确认提交；用户同意后仅传 confirm=true 提交（服务端使用预检暂存的定稿）");
             return new ToolExecutionResult(toJson(preview), "生成了领养「" + animal.getNickname() + "」的申请预览，等待用户确认");
         }
         Applcation app = new Applcation();
@@ -412,6 +428,48 @@ public class AgentToolRegistry {
 
     private String orDefault(String s) {
         return notEmpty(s) ? s : "未填写";
+    }
+
+    // ==================== 写操作两阶段：服务端草稿机制 ====================
+
+    private String pendingKey(Integer userId, String op) {
+        return "ai:write:pending:" + userId + ":" + op;
+    }
+
+    /** 预检通过后暂存执行定稿（10 分钟），confirm 阶段只认暂存内容 */
+    private void storePendingDraft(Integer userId, String op, Map<String, Object> payload) {
+        try {
+            stringRedisTemplate.opsForValue().set(pendingKey(userId, op), toJson(payload), 10, TimeUnit.MINUTES);
+        } catch (Exception e) {
+            throw new ServiceException(Constants.CODE_500, "预检暂存失败（Redis 不可用），请稍后重试");
+        }
+    }
+
+    /**
+     * confirm 阶段消费暂存草稿：读取成功即删除（一次性使用，防止草稿被重复消费导致重复写库）
+     * 无草稿、内容异常或 Redis 异常时返回 null，由调用方以错误结果拒绝执行（写操作 fail-safe）
+     */
+    private JsonNode consumePendingDraft(Integer userId, String op) {
+        String stored = null;
+        try {
+            stored = stringRedisTemplate.opsForValue().get(pendingKey(userId, op));
+        } catch (Exception ignore) {
+        }
+        if (stored == null) {
+            return null;
+        }
+        try {
+            stringRedisTemplate.delete(pendingKey(userId, op));
+        } catch (Exception ignore) {
+        }
+        if (!stored.contains("{")) {
+            return null;
+        }
+        try {
+            return objectMapper.readTree(stored);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -460,6 +518,15 @@ public class AgentToolRegistry {
     // ==================== 写操作：健康记录录入 ====================
 
     private ToolExecutionResult addHealthRecord(JsonNode args, User user) {
+        boolean viaPending = false;
+        if (args.path("confirm").asBoolean(false)) {
+            JsonNode pending = consumePendingDraft(user.getId(), "health_record");
+            if (pending == null) {
+                return new ToolExecutionResult("{\"error\":\"服务端要求两阶段执行：当前没有已预检的草稿。请先不带 confirm 调用完成预检，把摘要展示给用户并取得明确同意后，再以 confirm=true 提交\"}", "未预检直接提交被拒绝");
+            }
+            args = pending;
+            viaPending = true;
+        }
         Object resolved = resolvePet(args, user);
         if (resolved instanceof ToolExecutionResult) {
             return (ToolExecutionResult) resolved;
@@ -497,8 +564,18 @@ public class AgentToolRegistry {
             weight = args.get("weight").decimalValue();
         }
 
-        boolean confirm = args.path("confirm").asBoolean(false);
-        if (!confirm) {
+        if (!viaPending) {
+            Map<String, Object> draft = new LinkedHashMap<>();
+            draft.put("petId", pet.getId());
+            draft.put("recordType", recordType.trim());
+            draft.put("itemName", itemName.trim());
+            draft.put("recordDate", recordDate.toString());
+            draft.put("hospital", textArg(args, "hospital"));
+            draft.put("doctor", textArg(args, "doctor"));
+            draft.put("nextDate", nextDate == null ? null : nextDate.toString());
+            draft.put("weight", weight);
+            draft.put("remark", textArg(args, "remark"));
+            storePendingDraft(user.getId(), "health_record", draft);
             Map<String, Object> preview = new LinkedHashMap<>();
             preview.put("needConfirm", true);
             preview.put("petName", pet.getPetName());
@@ -509,7 +586,7 @@ public class AgentToolRegistry {
             preview.put("doctor", textArg(args, "doctor"));
             preview.put("nextDate", nextDate == null ? null : nextDate.toString());
             preview.put("weight", weight);
-            preview.put("message", "请把以上记录摘要展示给用户并明确询问是否确认录入；用户同意后才允许 confirm=true 正式写入");
+            preview.put("message", "请把以上记录摘要展示给用户并明确询问是否确认录入；用户同意后仅传 confirm=true 写入（服务端使用预检暂存的定稿）");
             return new ToolExecutionResult(toJson(preview), "生成了「" + pet.getPetName() + "」的健康记录预览，等待用户确认");
         }
 
@@ -536,6 +613,15 @@ public class AgentToolRegistry {
     // ==================== 写操作：服务预约下单 ====================
 
     private ToolExecutionResult createServiceOrder(JsonNode args, User user) {
+        boolean viaPending = false;
+        if (args.path("confirm").asBoolean(false)) {
+            JsonNode pending = consumePendingDraft(user.getId(), "service_order");
+            if (pending == null) {
+                return new ToolExecutionResult("{\"error\":\"服务端要求两阶段执行：当前没有已预检的草稿。请先不带 confirm 调用完成预检，把摘要展示给用户并取得明确同意后，再以 confirm=true 提交\"}", "未预检直接提交被拒绝");
+            }
+            args = pending;
+            viaPending = true;
+        }
         // 解析服务项
         Integer serviceId = optInt(args, "serviceId");
         String serviceName = textArg(args, "serviceName");
@@ -599,8 +685,13 @@ public class AgentToolRegistry {
                 .eq("appointment_time", appointmentTime)
                 .ne("status", "CANCELLED"));
 
-        boolean confirm = args.path("confirm").asBoolean(false);
-        if (!confirm) {
+        if (!viaPending) {
+            Map<String, Object> draft = new LinkedHashMap<>();
+            draft.put("serviceId", service.getId());
+            draft.put("petId", pet.getId());
+            draft.put("appointmentTime", appointmentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+            draft.put("remark", textArg(args, "remark"));
+            storePendingDraft(user.getId(), "service_order", draft);
             Map<String, Object> preview = new LinkedHashMap<>();
             preview.put("needConfirm", true);
             preview.put("serviceName", service.getName());
@@ -613,7 +704,7 @@ public class AgentToolRegistry {
             preview.put("timeConflict", conflict > 0);
             preview.put("message", conflict > 0
                     ? "该时间段已被预约，请让用户换一个时间"
-                    : "请把以上订单预览展示给用户并明确询问是否确认下单；用户同意后才允许 confirm=true 正式提交");
+                    : "请把以上订单预览展示给用户并明确询问是否确认下单；用户同意后仅传 confirm=true 提交（服务端使用预检暂存的定稿）");
             return new ToolExecutionResult(toJson(preview),
                     conflict > 0 ? "该时段已被预约" : "生成了「" + service.getName() + "」的预约预览，等待用户确认");
         }
@@ -773,6 +864,15 @@ public class AgentToolRegistry {
     }
 
     private ToolExecutionResult cancelServiceOrder(JsonNode args, User user) {
+        boolean viaPending = false;
+        if (args.path("confirm").asBoolean(false)) {
+            JsonNode pending = consumePendingDraft(user.getId(), "order_cancel");
+            if (pending == null) {
+                return new ToolExecutionResult("{\"error\":\"服务端要求两阶段执行：当前没有已预检的草稿。请先不带 confirm 调用完成预检，把摘要展示给用户并取得明确同意后，再以 confirm=true 提交\"}", "未预检直接提交被拒绝");
+            }
+            args = pending;
+            viaPending = true;
+        }
         Integer orderId = optInt(args, "orderId");
         String orderNo = textArg(args, "orderNo");
         ServiceOrder order;
@@ -793,9 +893,12 @@ public class AgentToolRegistry {
         if (!notEmpty(cancelReason)) {
             return new ToolExecutionResult("{\"error\":\"缺少取消原因，请向用户询问\"}", "缺少取消原因");
         }
-        boolean confirm = args.path("confirm").asBoolean(false);
-        if (!confirm) {
+        if (!viaPending) {
             ServiceItem s = order.getServiceId() == null ? null : serviceItemService.getById(order.getServiceId());
+            Map<String, Object> draft = new LinkedHashMap<>();
+            draft.put("orderId", order.getId());
+            draft.put("cancelReason", cancelReason);
+            storePendingDraft(user.getId(), "order_cancel", draft);
             Map<String, Object> preview = new LinkedHashMap<>();
             preview.put("needConfirm", true);
             preview.put("orderNo", order.getOrderNo());
@@ -804,7 +907,7 @@ public class AgentToolRegistry {
                     : order.getAppointmentTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
             preview.put("status", order.getStatus());
             preview.put("cancelReason", cancelReason);
-            preview.put("message", "请把以上订单信息展示给用户并明确询问是否确认取消；用户同意后才允许 confirm=true 正式取消");
+            preview.put("message", "请把以上订单信息展示给用户并明确询问是否确认取消；用户同意后仅传 confirm=true 取消（服务端使用预检暂存的定稿）");
             return new ToolExecutionResult(toJson(preview), "生成了订单 " + order.getOrderNo() + " 的取消预览，等待用户确认");
         }
         // 复用平台现有取消逻辑（本人校验 + 状态校验 + 取消时间记录），异常会带回给模型
@@ -864,17 +967,28 @@ public class AgentToolRegistry {
     // ==================== 对话式健康建议 ====================
 
     private ToolExecutionResult generatePetHealthAdvice(JsonNode args, User user) {
+        boolean viaPending = false;
+        if (args.path("confirm").asBoolean(false)) {
+            JsonNode pending = consumePendingDraft(user.getId(), "health_advice");
+            if (pending == null) {
+                return new ToolExecutionResult("{\"error\":\"服务端要求两阶段执行：当前没有已预检的草稿。请先不带 confirm 调用完成预检，把摘要展示给用户并取得明确同意后，再以 confirm=true 提交\"}", "未预检直接提交被拒绝");
+            }
+            args = pending;
+            viaPending = true;
+        }
         Object resolved = resolvePet(args, user);
         if (resolved instanceof ToolExecutionResult) {
             return (ToolExecutionResult) resolved;
         }
         PetProfile pet = (PetProfile) resolved;
-        boolean confirm = args.path("confirm").asBoolean(false);
-        if (!confirm) {
+        if (!viaPending) {
+            Map<String, Object> draft = new LinkedHashMap<>();
+            draft.put("petId", pet.getId());
+            storePendingDraft(user.getId(), "health_advice", draft);
             Map<String, Object> preview = new LinkedHashMap<>();
             preview.put("needConfirm", true);
             preview.put("petName", pet.getPetName());
-            preview.put("message", "AI 将根据「" + pet.getPetName() + "」的档案和健康记录生成个性化健康建议（5-8条），并覆盖该宠物现有的建议。请向用户展示本说明并询问是否继续；同意后以 confirm=true 执行");
+            preview.put("message", "AI 将根据「" + pet.getPetName() + "」的档案和健康记录生成个性化健康建议（5-8条），并覆盖该宠物现有的建议。请向用户展示本说明并询问是否继续；同意后仅传 confirm=true 执行（服务端使用预检暂存的定稿）");
             return new ToolExecutionResult(toJson(preview), "说明了为「" + pet.getPetName() + "」生成健康建议的操作，等待用户确认");
         }
         Map<String, Object> result = healthAdviceAiService.generateForPet(pet.getId());
