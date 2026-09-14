@@ -6,7 +6,7 @@
       <div style="margin: 20px 0; text-align: center; font-size: 28px; color: rgb(64, 64, 64); display: flex; align-items: center; justify-content: center;">
         <img src="@/assets/front-logo.jpg"
           style="height: 40px; width: auto; margin-right: 12px; flex-shrink: 0; -webkit-user-drag: none;-khtml-user-drag: none;-moz-user-drag: none;user-drag: none;" />
-        <b style="line-height: 1.2;">宠物服务平台</b>
+        <b style="line-height: 1.2;">智宠平台</b>
       </div>
       <el-form :model="user" :rules="rules" ref="userForm">
         <el-form-item prop="username">

@@ -6,7 +6,7 @@
 
     <div style="margin-bottom: 60px">
       <el-card>
-        <div class="welcome"> <b> 欢迎使用宠物服务平台后台</b></div>
+        <div class="welcome"> <b> 欢迎使用智宠平台后台</b></div>
         <el-divider />
         <img src="@/assets/back-background.jpg"
           style="height: 350px;margin: 5px 5px 0 0;-webkit-user-drag: none;-khtml-user-drag: none;-moz-user-drag: none;user-drag: none;" />

@@ -1,8 +1,8 @@
-# 宠物救助管理系统（pet-system）
+# 智宠 SmartPet — 基于 AI Agent 的宠物服务平台
 
 ![Java](https://img.shields.io/badge/Java-8-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.5.9-green) ![Vue](https://img.shields.io/badge/Vue-2.6-brightgreen) ![MySQL](https://img.shields.io/badge/MySQL-8.0-blue) ![Redis](https://img.shields.io/badge/Redis-6-red) ![GLM](https://img.shields.io/badge/GLM-4--Flash-purple)
 
-基于 **Spring Boot + Vue + MySQL + Redis** 实现的宠物数字化管理与社区互助服务平台，涵盖流浪动物领养、救助站管理、宠物健康档案、服务预约、社区科普等模块。
+「智宠 SmartPet」是基于 **Spring Boot + Vue + MySQL + Redis** 实现的、深度集成 AI Agent 的宠物服务平台，涵盖流浪动物领养、救助站管理、宠物健康档案、服务预约、社区科普等模块。
 
 平台内置基于大模型 **Function Calling** 的轻量级 AI Agent 智能助手，并集成 AI 健康建议、领养匹配 AI 分析与宠物照片多模态识别建档能力。
 

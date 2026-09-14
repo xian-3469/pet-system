@@ -5,7 +5,7 @@
       <!-- Logo区域 -->
       <div class="logo-area">
         <img src="../../assets/front-logo.jpg" alt="" class="logo-image">
-        <span class="logo-text">宠物服务平台</span>
+        <span class="logo-text">智宠平台</span>
       </div>
 
       <!-- 导航菜单 -->

@@ -1,5 +1,5 @@
 #!/bin/bash
-# 宠物救助管理系统 一键启动脚本
+# 智宠平台（SmartPet）一键启动脚本
 # 用法: bash start.sh
 # 依赖：便携版 JDK/Maven/MySQL/Redis 安装在 ~/tools 下（本机部署方式）；
 #       标准安装环境下请自行调整 JAVA_HOME/MYSQL 路径

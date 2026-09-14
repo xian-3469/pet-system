@@ -1,5 +1,5 @@
 #!/bin/bash
-# 宠物救助管理系统 一键关闭脚本
+# 智宠平台（SmartPet）一键关闭脚本
 # 用法: bash stop.sh
 # 依次关闭：前端 → 后端 → MySQL → Redis
 
