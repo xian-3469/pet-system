@@ -18,3 +18,4 @@ backend/application-local.yml
 # ===== 日志与其他 =====
 *.log
 .DS_Store
+dump.rdb
