@@ -34,7 +34,7 @@ public class ServiceOrderController {
     private MenuMapper menuMapper;
 
     /**
-     * 提交预约订单（使用 Redis 分布式锁防止超售）
+     * 提交预约订单（方法级锁 + 同服务同时段冲突校验防止超约）
      * 宠物主操作
      */
     @ApiOperation("提交预约订单")
